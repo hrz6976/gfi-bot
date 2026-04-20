@@ -20,8 +20,8 @@ def check_tokens(tokens: List[str]) -> Set[str]:
     failed_tokens = set()
 
     if len(tokens) == 0:
-        logging.error("No tokens found")
-        exit(1)
+        logging.warning("No tokens found. The bot will not be able to fetch data from GitHub.")
+        return failed_tokens
 
     for token in tokens:
         url = "https://api.github.com/"

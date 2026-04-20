@@ -26,17 +26,16 @@ app.include_router(model.api, prefix="/api/model")
 
 
 def get_scheduler() -> BackgroundScheduler:
-    try:
-        return app.scheduler
-    except AttributeError:
+    scheduler = getattr(app, "scheduler", None)
+    if scheduler is None:
         app.scheduler = start_scheduler()
         return app.scheduler
+    return scheduler
 
 
 def get_db_connection():
-    try:
-        return app.db_connection
-    except AttributeError:
+    db_connection = getattr(app, "db_connection", None)
+    if db_connection is None:
         app.db_connection = mongoengine.connect(
             CONFIG["mongodb"]["db"],
             host=CONFIG["mongodb"]["url"],
@@ -45,6 +44,7 @@ def get_db_connection():
             connect=False,
         )
         return app.db_connection
+    return db_connection
 
 
 @app.on_event("startup")

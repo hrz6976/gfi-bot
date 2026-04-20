@@ -63,6 +63,9 @@ def parallel(
     """
     if not total:
         total = len(args)
+    if total == 0:
+        logging.info("no jobs to run, returning default")
+        return agg_func(None, None) if agg_func else None
     if not n_workers:
         n_workers = _get_default_n_workers(total)
 

@@ -20,7 +20,7 @@ with open(BASE_DIR / "pyproject.toml", "r", encoding="utf-8") as f:
 
 TOKENS: List[str] = []
 if not (BASE_DIR / "tokens.txt").exists():
-    logging.error("No tokens.txt file found. Please create one.")
+    logging.warning("No tokens.txt file found. You can add one to enable background tasks.")
 else:
     with open(BASE_DIR / "tokens.txt") as f:
         TOKENS = f.read().strip().split("\n")

@@ -231,7 +231,7 @@ def train_all(
         # load df
         cache_path = get_full_path(
             GFIBOT_CACHE_PATH,
-            f'dataset_{newcomer_thres}{"" if text_features is False else "_text"}{"_lite" if drop_insignificant_features else ""}.csv',
+            f"dataset_{newcomer_thres}{'' if text_features is False else '_text'}{'_lite' if drop_insignificant_features else ''}.csv",
         )
         if use_cache and os.path.exists(cache_path):
             logging.info("Found dataset in cache %s", cache_path)
@@ -239,13 +239,14 @@ def train_all(
         else:
             _df_all = load_full_dataset(
                 newcomer_thres=newcomer_thres,
-                random_seed=random_seed,
                 text_features=text_features,
+                drop_insignificant_features=drop_insignificant_features
             )
+            if _df_all is None or _df_all.empty:
+                logging.warning("No data found for newcomer_thres=%d, skipping", newcomer_thres)
+                continue
             _df_all.to_csv(cache_path, index=False)
-
             logging.info("Dataset saved to %s", cache_path)
-
         _df = _df_all.dropna(subset=["closed_at"])
 
         logging.info("%d/%d open issues loaded", len(_df), len(_df_all))

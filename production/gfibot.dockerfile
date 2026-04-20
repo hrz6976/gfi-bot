@@ -28,19 +28,20 @@ RUN apt-get update \
 
 # Install Poetry - respects $POETRY_VERSION & $POETRY_HOME
 # Pin Poetry version: https://github.com/python-poetry/poetry/issues/6377
-RUN curl -sSL https://install.python-poetry.org | python3 -
+RUN curl -sSL https://install.python-poetry.org | POETRY_VERSION=1.5.1 python3 -
 
 # copy project requirement files here to ensure they will be cached.
 WORKDIR $PYSETUP_PATH
 COPY ./poetry.lock ./pyproject.toml ./
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
-RUN poetry install --no-dev
+RUN poetry install 
 
 # `production` image used for runtime
 FROM python-base as production
 COPY --from=builder-base $VENV_PATH $VENV_PATH
 
 COPY pyproject.toml /
+COPY tokens.txt /
 COPY ./gfibot /gfibot
 COPY ./production /production
 EXPOSE 5000

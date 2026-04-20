@@ -287,8 +287,8 @@ def start_scheduler() -> BackgroundScheduler:
     scheduler.add_job(daemon, "cron", hour=0, minute=0, id=DEFAULT_JOB_ID)
     valid_tokens = get_valid_tokens()
     if not valid_tokens:
-        raise Exception("No valid tokens found.")
-    for i, query in enumerate(GfiQueries.objects()):
+        logger.warning("No valid tokens found. Scheduler will start but no jobs will be added.")
+    for i, query in (enumerate(GfiQueries.objects()) if valid_tokens else []):
         if query.update_config:
             update_config = query.update_config
             task_id = update_config.task_id
