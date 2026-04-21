@@ -1,7 +1,7 @@
 from typing import List, Optional
 import math
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from gfibot.collections import *
 from gfibot.backend.models import GFIResponse, TrainingResult
@@ -30,7 +30,7 @@ def get_training_result(
             .first()
         )
         if not query:
-            raise HTTPException(status_code=404, detail="Training result not found")
+            return GFIResponse(result=[])
         else:
             q = {**query.to_mongo()}
             q["issues_train"] = len(q["issues_train"])
@@ -69,6 +69,4 @@ def get_training_result(
         #     q["issues_test"] = len(q["issues_test"])
         #     q = {k: 0. if isinstance(v, float) and math.isnan(v) else v for k, v in q.items()}  # convert nan to 0
         #     training_result.append(TrainingResult(**q))
-        if not training_result:
-            raise HTTPException(status_code=404, detail="Training result not found")
         return GFIResponse(result=training_result)
