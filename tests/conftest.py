@@ -3,6 +3,10 @@ import logging
 import os
 import mongoengine
 import mongoengine.context_managers
+
+# Prevent backend imports from starting APScheduler during test collection.
+os.environ["GFIBOT_SKIP_SCHEDULER"] = "1"
+
 from gfibot.backend.routes.user import github_login
 import gfibot.model._predictor
 import gfibot.model.base
