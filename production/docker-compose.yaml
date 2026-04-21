@@ -2,7 +2,7 @@ version: "2.2"
 
 services:
   mongodb:
-    image: mongo
+    image: mongo:5.0
     volumes:
       - ${GFIBOT_DATA_DIR}/mongodb:/data/db
     command: mongod --bind_ip=0.0.0.0 --port=27020
@@ -51,26 +51,22 @@ services:
       options:
         max-size: "10m"
         max-file: "5"
-# 
-#   frontend:
-#     build:
-#       context: ../
-#       dockerfile: ./production/frontend.dockerfile
-#       args:
-#         NODE_ENV: ${NODE_ENV:-production}
-#         REACT_APP_BASE_URL: ${REACT_APP_BASE_URL:-http://localhost:5000}
-#     ports:
-#       - "${GFIBOT_HTTP_PORT}:80"
-#       - "${GFIBOT_HTTPS_PORT}:443"
-#     restart: always
-#     environment:
-#       - REACT_APP_BASE_URL
-#     logging:
-#       options:
-#         max-size: "10m"
-#         max-file: "5"
-#     mem_limit: "2g"
-#     volumes:
-#       - ${GFIBOT_DATA_DIR}/certs/:/data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/
-#     depends_on:
-#       - gfi-bot
+  frontend:
+    build:
+      context: ../
+      dockerfile: ./production/frontend.dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV:-production}
+        REACT_APP_BASE_URL: ${REACT_APP_BASE_URL:-}
+    ports:
+      - "${GFIBOT_HTTP_PORT}:80"
+    restart: always
+    environment:
+      - REACT_APP_BASE_URL=
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
+    mem_limit: "2g"
+    depends_on:
+      - gfi-bot
