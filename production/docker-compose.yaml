@@ -33,24 +33,24 @@ services:
         max-size: "10m"
         max-file: "5"
 
-#   gfi-trainer:
-#     build:
-#       context: ../
-#       dockerfile: ./production/gfibot.dockerfile
-#     depends_on:
-#       - mongodb
-#     volumes:
-#       - ${GFIBOT_DATA_DIR}/cache:/.cache
-#       - ${GFIBOT_DATA_DIR}/models:/models
-#       - ${GFIBOT_DATA_DIR}/nltk_data:/root/nltk_data
-#     command: python3 -m gfibot.model.train --text-features --repeat-hours 24
-#     mem_limit: "10g"
-#     cpu_count: 3
-#     restart: always
-#     logging:
-#       options:
-#         max-size: "10m"
-#         max-file: "5"
+  gfi-trainer:
+    build:
+      context: ../
+      dockerfile: ./production/gfibot.dockerfile
+    depends_on:
+      - mongodb
+    volumes:
+      - ${GFIBOT_DATA_DIR}/cache:/.cache
+      - ${GFIBOT_DATA_DIR}/models:/models
+      - ${GFIBOT_DATA_DIR}/nltk_data:/root/nltk_data
+    command: python3 -m gfibot.model.train --text-features --repeat-hours 24
+    mem_limit: "10g"
+    cpu_count: 3
+    restart: always
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
 # 
 #   frontend:
 #     build:
