@@ -1,10 +1,12 @@
 import pytest
 import logging
+import os
 import mongoengine
 import mongoengine.context_managers
 from gfibot.backend.routes.user import github_login
 import gfibot.model._predictor
 import gfibot.model.base
+from functools import lru_cache
 
 from datetime import datetime, timezone
 from gfibot import CONFIG, TOKENS
@@ -13,9 +15,15 @@ from gfibot.collections import *
 from gfibot.data.dataset import *
 
 
+@lru_cache(maxsize=1)
+def get_valid_tokens():
+    invalid_tokens = check_tokens(TOKENS)
+    return [token for token in TOKENS if token not in invalid_tokens]
+
+
 @pytest.fixture(scope="session", autouse=True)
 def execute_before_any_test():
-    check_tokens(TOKENS)
+    get_valid_tokens()
 
     # Ensure that the production database is not touched in all tests
     CONFIG["mongodb"]["db"] = "gfibot-test"
@@ -29,6 +37,14 @@ def execute_before_any_test():
     os.environ["GFIBOT_SKIP_SCHEDULER"] = "1"
     # limit since_date in tests
     os.environ["CI"] = "1"
+
+
+@pytest.fixture(scope="session")
+def github_token():
+    valid_tokens = get_valid_tokens()
+    if not valid_tokens:
+        pytest.skip("requires a valid GitHub token")
+    return valid_tokens[0]
 
 
 @pytest.fixture(scope="function")

@@ -1,4 +1,5 @@
 import math
+import logging
 import pandas as pd
 import xgboost as xgb
 
@@ -17,6 +18,8 @@ warnings.warn(
     "This model interface is deprecated. Please use model.predict instead.",
     DeprecationWarning,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def cat_comment(comment: list) -> str:
@@ -228,14 +231,29 @@ def update_model(
     model_path: str, threshold: int, train_add: list, batch_size: int
 ) -> xgb.core.Booster:
     ith_batch = 0
+    model = model_path
     while ith_batch < math.ceil(len(train_add) / batch_size):
         train_batch = train_add[ith_batch * batch_size : (ith_batch + 1) * batch_size]
-        model_path = train_incremental(threshold, model_path, train_batch)
+        model = train_incremental(threshold, model, train_batch)
         ith_batch += 1
-    model = model_path
-    if ith_batch == 0:
-        model = xgb.Booster()
+    if ith_batch == 0 and isinstance(model, str):
+        model = _load_model(model)
+    return model if model is not None else xgb.Booster()
+
+
+def _load_model(model_path: str):
+    if not model_path:
+        return None
+    model = xgb.Booster()
+    try:
         model.load_model(model_path)
+    except xgb.core.XGBoostError as exc:
+        logger.warning(
+            "Failed to load XGBoost model %s, training from scratch: %s",
+            model_path,
+            exc,
+        )
+        return None
     return model
 
 
@@ -247,9 +265,10 @@ def train_incremental(
     X_train, y_train = load_train_data(data)
     if len(X_train) == 0:
         return model_path
-    else:
-        xg_train = xgb.DMatrix(X_train, label=y_train)
-        return xgb.train(params, xg_train, xgb_model=model_path)
+    xg_train = xgb.DMatrix(X_train, label=y_train)
+    if isinstance(model_path, str):
+        model_path = _load_model(model_path)
+    return xgb.train(params, xg_train, xgb_model=model_path)
 
 
 def load_train_data(data: pd.DataFrame):

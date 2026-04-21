@@ -141,11 +141,10 @@ def test_update_state():
     assert q.children[1].children[3].finished
 
 
-def test_user_fetcher():
+def test_user_fetcher(github_token):
     # requires access to GitHub API
-    token = TOKENS[0] if len(TOKENS) > 0 else None
     uf = UserFetcher(
-        token=token,
+        token=github_token,
         login="antfu",
         since=datetime.now() - timedelta(days=1),
         callbacks={

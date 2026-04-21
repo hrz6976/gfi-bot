@@ -12,19 +12,17 @@ from gfibot.model.train import *
 from gfibot.model.predict import *
 
 
-def test_all(real_mongodb):
+def test_all(real_mongodb, github_token):
     update.logger.setLevel(logging.DEBUG)
     rest.logger.setLevel(logging.DEBUG)
     dataset.logger.setLevel(logging.DEBUG)
 
-    token = gfibot.TOKENS[0] if len(gfibot.TOKENS) > 0 else None
-
-    update.update_repo(token, "Mihara", "RasterPropMonitor")
+    update.update_repo(github_token, "Mihara", "RasterPropMonitor")
 
     query = Q(owner="Mihara", name="RasterPropMonitor")
     repo1 = Repo.objects(query).first()
 
-    update.update_repo(token, "Mihara", "RasterPropMonitor")
+    update.update_repo(github_token, "Mihara", "RasterPropMonitor")
     repo2 = Repo.objects(query).first()
     assert len(repo2.monthly_stars) >= len(repo1.monthly_stars)
     assert len(repo2.monthly_commits) >= len(repo1.monthly_commits)

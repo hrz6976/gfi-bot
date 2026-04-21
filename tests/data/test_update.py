@@ -25,7 +25,7 @@ def test_match_issue_numbers():
     assert upd._match_issue_numbers("Resolve #2 resolves #1 resolved #3") == [2, 1, 3]
 
 
-def test_locate_resolved_issues(mock_mongodb):
+def test_locate_resolved_issues(mock_mongodb, github_token):
     # Sadly, this test requires interaction with GitHub API,
     #     so mocking data is not entirely possible
     owner, name = "HabitRPG", "habitica"
@@ -90,8 +90,7 @@ def test_locate_resolved_issues(mock_mongodb):
     for c in commits:
         RepoCommit(**c).save()
 
-    token = gfibot.TOKENS[0] if len(gfibot.TOKENS) > 0 else None
-    fetcher = rest.RepoFetcher(token, owner, name)
+    fetcher = rest.RepoFetcher(github_token, owner, name)
     resolved = upd._locate_resolved_issues(
         fetcher, datetime(1970, 1, 1, tzinfo=timezone.utc)
     )
@@ -104,8 +103,7 @@ def test_locate_resolved_issues(mock_mongodb):
     )
 
 
-def test_update_user(mock_mongodb):
+def test_update_user(mock_mongodb, github_token):
     logging.basicConfig(level=logging.DEBUG)
-    token = gfibot.TOKENS[0] if len(gfibot.TOKENS) > 0 else None
-    upd.update_user(token, "xmcp")
+    upd.update_user(github_token, "xmcp")
     assert User.objects(login="xmcp").first().login == "xmcp"

@@ -18,11 +18,10 @@ def test_get_month_interval():
     assert (until + timedelta(seconds=1)).month == 2
 
 
-def test_repo_fetcher(mock_mongodb):
+def test_repo_fetcher(mock_mongodb, github_token):
     now = datetime.now(timezone.utc)
     owner, name = "octocat", "hello-world"
-    token = TOKENS[0] if len(TOKENS) > 0 else None
-    fetcher = rest.RepoFetcher(token, owner, name)
+    fetcher = rest.RepoFetcher(github_token, owner, name)
 
     stats = fetcher.get_stats()
     pprint(stats)

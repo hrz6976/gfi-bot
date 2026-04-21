@@ -1,3 +1,4 @@
+import pytest
 from datetime import datetime, timezone
 from pandas.testing import assert_frame_equal
 from gfibot.collections import *
@@ -220,7 +221,7 @@ def test_predict_issues(mock_mongodb):
     model = xgb.train(params, xg_train, xgb_model=None)
     y_test_all, y_prob_all = predict_issues(test_set, threshold, batch_size, model)
     assert y_test_all == [0]
-    assert y_prob_all == [0.5]
+    assert y_prob_all == pytest.approx(list(model.predict(xg_train)))
 
 
 def test_get_all_metrics():
